@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
+import AdminMenuSection from './AdminMenuSection'
 import {
   getOrders,
   getShopIsOpen,
@@ -7,6 +8,8 @@ import {
   updateOrderStatus,
 } from '../lib/api'
 import type { OrderWithItem, OrderStatus } from '../lib/types'
+
+type AdminTab = 'orders' | 'menu'
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending:   'Pending',
@@ -32,6 +35,7 @@ function formatDate(iso: string) {
 
 export default function AdminPage() {
   const { signOut } = useAuth()
+  const [activeTab, setActiveTab] = useState<AdminTab>('orders')
   const [orders, setOrders] = useState<OrderWithItem[]>([])
   const [shopIsOpen, setShopIsOpenState] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
@@ -39,8 +43,12 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
+    setLoading(true)
     try {
-      const [fetchedOrders, isOpen] = await Promise.all([getOrders(), getShopIsOpen()])
+      const [fetchedOrders, isOpen] = await Promise.all([
+        getOrders(),
+        getShopIsOpen(),
+      ])
       setOrders(fetchedOrders)
       setShopIsOpenState(isOpen)
     } catch {
@@ -50,7 +58,9 @@ export default function AdminPage() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+  }, [load])
 
   async function handleToggleShop() {
     if (shopIsOpen === null) return
@@ -85,19 +95,23 @@ export default function AdminPage() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span
-              className={`w-2 h-2 rounded-full ${shopIsOpen ? 'bg-emerald-400' : 'bg-slate-500'}`}
+              className={`w-2 h-2 rounded-full ${
+                shopIsOpen ? 'bg-emerald-400' : 'bg-slate-500'
+              }`}
             />
             <span className="text-sm font-mono text-slate-400">admin</span>
             <span className="text-slate-600">/</span>
             <span className="text-sm font-semibold">havynly-matcha</span>
           </div>
           <div className="flex items-center gap-4">
-            <button
-              onClick={load}
-              className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-            >
-              Refresh
-            </button>
+            {activeTab === 'orders' && (
+              <button
+                onClick={load}
+                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                Refresh
+              </button>
+            )}
             <button
               onClick={signOut}
               className="text-xs text-slate-500 hover:text-red-400 transition-colors"
@@ -121,8 +135,8 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+        {/* Stats row — always visible */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4">
             <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">Pending</div>
             <div className="text-3xl font-bold">{loading ? '—' : pendingCount}</div>
@@ -135,7 +149,11 @@ export default function AdminPage() {
           <div className="col-span-2 sm:col-span-1 bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
             <div>
               <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">Shop</div>
-              <div className={`text-lg font-bold ${shopIsOpen ? 'text-emerald-400' : 'text-slate-500'}`}>
+              <div
+                className={`text-lg font-bold ${
+                  shopIsOpen ? 'text-emerald-400' : 'text-slate-500'
+                }`}
+              >
                 {shopIsOpen === null ? '—' : shopIsOpen ? 'Open' : 'Closed'}
               </div>
             </div>
@@ -153,75 +171,108 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Order backlog */}
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
-          Orders
-        </h2>
+        {/* Tab bar */}
+        <div className="flex border-b border-slate-700 mb-6">
+          {(['orders', 'menu'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
+                activeTab === tab
+                  ? 'border-emerald-500 text-emerald-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {tab}
+              {tab === 'orders' && !loading && pendingCount > 0 && (
+                <span className="ml-1.5 text-xs bg-yellow-500/20 text-yellow-300 rounded-full px-1.5 py-0.5">
+                  {pendingCount}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
 
-        {loading ? (
-          <p className="text-slate-500 text-sm animate-pulse">Loading orders…</p>
-        ) : orders.length === 0 ? (
-          <p className="text-slate-600 text-sm">No orders yet.</p>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 flex items-start justify-between gap-4"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-slate-100 text-sm">
-                      {order.customer_name}
-                    </span>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[order.status]}`}
-                    >
-                      {STATUS_LABELS[order.status]}
-                    </span>
+        {/* Orders tab */}
+        {activeTab === 'orders' && (
+          <>
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              Orders
+            </h2>
+
+            {loading ? (
+              <p className="text-slate-500 text-sm animate-pulse">Loading orders…</p>
+            ) : orders.length === 0 ? (
+              <p className="text-slate-600 text-sm">No orders yet.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {orders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 flex items-start justify-between gap-4"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-semibold text-slate-100 text-sm">
+                          {order.customer_name}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            STATUS_COLORS[order.status]
+                          }`}
+                        >
+                          {STATUS_LABELS[order.status]}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-400">
+                        {order.menu_items?.name ?? 'Unknown drink'}
+                      </p>
+                      {order.notes && (
+                        <p className="text-xs text-slate-500 mt-0.5 italic">
+                          "{order.notes}"
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-600 mt-1">
+                        {formatDate(order.created_at)} · {formatTime(order.created_at)}
+                      </p>
+                    </div>
+
+                    {/* Quick status buttons */}
+                    <div className="flex flex-col gap-1 shrink-0">
+                      {order.status === 'pending' && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'ready')}
+                          className="text-xs px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                        >
+                          Ready
+                        </button>
+                      )}
+                      {order.status === 'ready' && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'done')}
+                          className="text-xs px-3 py-1 rounded-lg bg-slate-600 hover:bg-slate-500 text-slate-200 transition-colors"
+                        >
+                          Done
+                        </button>
+                      )}
+                      {(order.status === 'pending' || order.status === 'ready') && (
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'cancelled')}
+                          className="text-xs px-3 py-1 rounded-lg bg-red-900/40 hover:bg-red-900/70 text-red-400 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-slate-400">
-                    {order.menu_items?.name ?? 'Unknown drink'}
-                  </p>
-                  {order.notes && (
-                    <p className="text-xs text-slate-500 mt-0.5 italic">"{order.notes}"</p>
-                  )}
-                  <p className="text-xs text-slate-600 mt-1">
-                    {formatDate(order.created_at)} · {formatTime(order.created_at)}
-                  </p>
-                </div>
-
-                {/* Quick status buttons */}
-                <div className="flex flex-col gap-1 shrink-0">
-                  {order.status === 'pending' && (
-                    <button
-                      onClick={() => handleStatusChange(order.id, 'ready')}
-                      className="text-xs px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
-                    >
-                      Ready
-                    </button>
-                  )}
-                  {order.status === 'ready' && (
-                    <button
-                      onClick={() => handleStatusChange(order.id, 'done')}
-                      className="text-xs px-3 py-1 rounded-lg bg-slate-600 hover:bg-slate-500 text-slate-200 transition-colors"
-                    >
-                      Done
-                    </button>
-                  )}
-                  {(order.status === 'pending' || order.status === 'ready') && (
-                    <button
-                      onClick={() => handleStatusChange(order.id, 'cancelled')}
-                      className="text-xs px-3 py-1 rounded-lg bg-red-900/40 hover:bg-red-900/70 text-red-400 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
+
+        {/* Menu tab */}
+        {activeTab === 'menu' && <AdminMenuSection />}
       </main>
     </div>
   )

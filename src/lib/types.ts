@@ -11,6 +11,16 @@ export interface MenuItemRow {
   created_at: string
 }
 
+// Shape used for create and update operations (no id / created_at)
+export interface MenuItemFormData {
+  name: string
+  description: string
+  price_cents: number
+  tags: string[]
+  is_available: boolean
+  sort_order: number
+}
+
 export type OrderStatus = 'pending' | 'ready' | 'done' | 'cancelled'
 
 export interface OrderRow {
