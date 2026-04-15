@@ -1,5 +1,5 @@
-// Admin dashboard — no auth yet. Add Supabase Auth before going live.
 import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '../context/AuthContext'
 import {
   getOrders,
   getShopIsOpen,
@@ -31,6 +31,7 @@ function formatDate(iso: string) {
 }
 
 export default function AdminPage() {
+  const { signOut } = useAuth()
   const [orders, setOrders] = useState<OrderWithItem[]>([])
   const [shopIsOpen, setShopIsOpenState] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
@@ -90,12 +91,20 @@ export default function AdminPage() {
             <span className="text-slate-600">/</span>
             <span className="text-sm font-semibold">havynly-matcha</span>
           </div>
-          <button
-            onClick={load}
-            className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            Refresh
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={load}
+              className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              Refresh
+            </button>
+            <button
+              onClick={signOut}
+              className="text-xs text-slate-500 hover:text-red-400 transition-colors"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 
@@ -213,10 +222,6 @@ export default function AdminPage() {
             ))}
           </div>
         )}
-
-        <p className="mt-10 text-xs text-slate-600">
-          ⚠ This page is not protected — add Supabase Auth before going live.
-        </p>
       </main>
     </div>
   )
