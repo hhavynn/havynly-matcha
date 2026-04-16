@@ -114,6 +114,11 @@ Deno.serve(async (request) => {
   }
 
   if (payload.table !== 'orders' || payload.type !== 'INSERT' || !payload.record) {
+    console.info('send-order-notification skipped non-order-insert payload', {
+      table: payload.table,
+      type: payload.type,
+    })
+
     return new Response(
       JSON.stringify({ ok: true, skipped: true }),
       { status: 200, headers: corsHeaders }
@@ -122,6 +127,11 @@ Deno.serve(async (request) => {
 
   try {
     const order = payload.record
+    console.info('send-order-notification processing order', {
+      orderId: order.id,
+      customerName: order.customer_name,
+    })
+
     const drinkName = await fetchDrinkName(
       supabaseUrl,
       serviceRoleKey,
@@ -146,6 +156,11 @@ Deno.serve(async (request) => {
       bodyLines.join('\n'),
       order.id
     )
+
+    console.info('send-order-notification email sent', {
+      orderId: order.id,
+      drinkName,
+    })
 
     return new Response(
       JSON.stringify({ ok: true }),
