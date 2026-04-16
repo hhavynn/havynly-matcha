@@ -6,15 +6,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
-  primary:   'bg-matcha-500 text-white hover:bg-matcha-600 active:bg-matcha-700',
-  secondary: 'bg-cream-100 text-matcha-700 border border-matcha-300 hover:bg-cream-200',
-  ghost:     'text-matcha-600 hover:bg-matcha-50 active:bg-matcha-100',
+  primary: 'bg-matcha-500 text-white hover:bg-matcha-600 active:bg-matcha-700 shadow-sm',
+  secondary: 'bg-matcha-100 text-matcha-600 hover:bg-matcha-200',
+  ghost: 'text-matcha-600 hover:bg-matcha-50 active:bg-matcha-100',
 }
 
 const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-5 py-2.5 text-base',
-  lg: 'px-7 py-3.5 text-lg',
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg',
 }
 
 export default function Button({
@@ -22,14 +22,16 @@ export default function Button({
   size = 'md',
   className = '',
   children,
+  type = 'button',
   ...props
 }: ButtonProps) {
   return (
     <button
+      type={type}
       className={[
-        'inline-flex items-center justify-center rounded-full font-medium',
-        'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2',
-        'focus-visible:ring-matcha-500 focus-visible:ring-offset-2 disabled:opacity-50',
+        'inline-flex select-none items-center justify-center rounded-full font-medium',
+        'touch-manipulation transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2',
+        'focus-visible:ring-matcha-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
         variantClasses[variant],
         sizeClasses[size],
         className,

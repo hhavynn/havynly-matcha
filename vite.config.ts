@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // Root base for user pages site (havynsmatcha.github.io — no subpath)
-  base: '/',
+  // GitHub Pages serves this repo from https://hhavynn.github.io/havynly-matcha/.
+  base: '/havynly-matcha/',
 })

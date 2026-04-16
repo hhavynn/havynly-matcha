@@ -1,53 +1,69 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../components/Button'
 import Card from '../components/Card'
 import PageSection from '../components/PageSection'
-import { getMenu, getShopIsOpen, submitOrder } from '../lib/api'
-import type { MenuItemRow } from '../lib/types'
+import { ShopClosedError, getMenu, getShopSettings, submitOrder } from '../lib/api'
+import type { MenuItemRow, ShopSettings } from '../lib/types'
 
 type PageStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function OrderPage() {
-  // Data loading
   const [menu, setMenu] = useState<MenuItemRow[]>([])
-  const [shopIsOpen, setShopIsOpen] = useState<boolean | null>(null)
+  const [shopSettings, setShopSettings] = useState<ShopSettings | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
-  // Form state
   const [name, setName] = useState('')
   const [selectedItemId, setSelectedItemId] = useState('')
   const [notes, setNotes] = useState('')
   const [pageStatus, setPageStatus] = useState<PageStatus>('idle')
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [errors, setErrors] = useState<{ name?: string; item?: string }>({})
 
   useEffect(() => {
     async function load() {
       try {
-        const [items, isOpen] = await Promise.all([getMenu(), getShopIsOpen()])
+        const [items, settings] = await Promise.all([getMenu(), getShopSettings()])
         setMenu(items)
-        setShopIsOpen(isOpen)
-        // Pre-select first item for convenience
-        if (items.length > 0) setSelectedItemId(items[0].id)
+        setShopSettings(settings)
+
+        if (items.length > 0) {
+          setSelectedItemId(items[0].id)
+        }
+      } catch {
+        setLoadError('Could not load ordering right now. Please try again.')
       } finally {
         setLoading(false)
       }
     }
-    load()
+
+    void load()
   }, [])
 
   function validate(): boolean {
-    const errs: typeof errors = {}
-    if (!name.trim()) errs.name = 'Please enter your name.'
-    if (!selectedItemId) errs.item = 'Please select a drink.'
-    setErrors(errs)
-    return Object.keys(errs).length === 0
+    const nextErrors: typeof errors = {}
+
+    if (!name.trim()) nextErrors.name = 'Please enter your name.'
+    if (!selectedItemId) nextErrors.item = 'Please select a drink.'
+
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault()
+
+    if (!shopSettings?.isOpen) {
+      setSubmitError(shopSettings?.statusMessage ?? 'Orders are closed right now.')
+      return
+    }
+
     if (!validate()) return
+
     setPageStatus('submitting')
+    setSubmitError(null)
+
     try {
       await submitOrder({
         customer_name: name.trim(),
@@ -55,7 +71,17 @@ export default function OrderPage() {
         notes: notes.trim() || undefined,
       })
       setPageStatus('success')
-    } catch {
+    } catch (error) {
+      if (error instanceof ShopClosedError) {
+        setSubmitError(error.message)
+        setShopSettings((current) =>
+          current
+            ? { ...current, isOpen: false, statusMessage: error.message }
+            : { isOpen: false, statusMessage: error.message }
+        )
+      } else {
+        setSubmitError('Something went wrong. Please try again.')
+      }
       setPageStatus('error')
     }
   }
@@ -64,92 +90,117 @@ export default function OrderPage() {
     setName('')
     setNotes('')
     setErrors({})
+    setSubmitError(null)
     setPageStatus('idle')
-    if (menu.length > 0) setSelectedItemId(menu[0].id)
+
+    if (menu.length > 0) {
+      setSelectedItemId(menu[0].id)
+    }
   }
 
-  // ── Loading ──────────────────────────────────────────────────
   if (loading) {
     return (
-      <PageSection narrow className="text-center py-20">
-        <p className="text-matcha-400 text-sm animate-pulse">Loading…</p>
+      <PageSection narrow className="py-20 text-center">
+        <p className="animate-pulse text-sm text-matcha-400">Loading...</p>
       </PageSection>
     )
   }
 
-  // ── Shop closed ───────────────────────────────────────────────
-  if (shopIsOpen === false) {
+  if (loadError) {
     return (
-      <PageSection narrow className="text-center py-20">
-        <p className="text-4xl mb-4">🍵</p>
-        <h1 className="text-xl font-bold text-matcha-800 mb-2">We're closed right now</h1>
-        <p className="text-matcha-400 text-sm mb-6">
-          Check back when we're open to place your order.
-        </p>
-        <Link to="/">
-          <Button variant="secondary">Back to Home</Button>
-        </Link>
+      <PageSection narrow className="py-20 text-center">
+        <Card className="border border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-600">{loadError}</p>
+        </Card>
       </PageSection>
     )
   }
 
-  // ── Success ───────────────────────────────────────────────────
+  if (shopSettings && !shopSettings.isOpen) {
+    return (
+      <PageSection narrow className="py-20 text-center">
+        <div className="mx-auto max-w-md rounded-[2rem] bg-cream-50 p-8 shadow-[0_18px_48px_rgba(55,79,53,0.08)]">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-matcha-100 text-matcha-700">
+            Closed
+          </div>
+          <h1 className="mt-5 text-2xl font-bold text-matcha-800">The shop is closed right now</h1>
+          <p className="mt-3 text-sm leading-6 text-matcha-500">{shopSettings.statusMessage}</p>
+          <Link to="/" className="mt-6 inline-flex">
+            <Button variant="secondary">Back to home</Button>
+          </Link>
+        </div>
+      </PageSection>
+    )
+  }
+
   if (pageStatus === 'success') {
     return (
-      <PageSection narrow className="text-center py-20">
-        <p className="text-5xl mb-4">✅</p>
-        <h1 className="text-xl font-bold text-matcha-800 mb-2">Order placed!</h1>
-        <p className="text-matcha-500 text-sm mb-6">
-          Thank you, <span className="font-medium">{name}</span>. We'll have your drink ready soon.
-        </p>
-        <Button variant="secondary" onClick={resetForm}>
-          Place another order
-        </Button>
+      <PageSection narrow className="py-20 text-center">
+        <div className="mx-auto max-w-md rounded-[2rem] bg-cream-50 p-8 shadow-[0_18px_48px_rgba(55,79,53,0.08)]">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-matcha-100 text-matcha-700">
+            Ready
+          </div>
+          <h1 className="mt-5 text-2xl font-bold text-matcha-800">Order placed</h1>
+          <p className="mt-3 text-sm leading-6 text-matcha-500">
+            Thank you, <span className="font-medium">{name}</span>. We will have your drink ready soon.
+          </p>
+          <Button className="mt-6" variant="secondary" onClick={resetForm}>
+            Place another order
+          </Button>
+        </div>
       </PageSection>
     )
   }
 
-  // ── Order form ────────────────────────────────────────────────
   return (
     <PageSection narrow>
-      <h1 className="text-2xl font-bold text-matcha-800 mb-1">Place an Order</h1>
-      <p className="text-matcha-500 text-sm mb-6">No account needed — just your name.</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-matcha-800">Place an Order</h1>
+        <p className="mt-1 text-sm text-matcha-500">
+          No account needed. Just your name and drink choice.
+        </p>
+        {shopSettings && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-matcha-100 px-4 py-2 text-sm font-medium text-matcha-700">
+            <span className="h-2 w-2 rounded-full bg-matcha-500 animate-pulse" />
+            {shopSettings.statusMessage}
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-        {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-matcha-700 mb-1.5" htmlFor="name">
-            Your name <span className="text-matcha-400 font-normal">(required)</span>
+          <label className="mb-1.5 block text-sm font-medium text-matcha-700" htmlFor="name">
+            Your name <span className="font-normal text-matcha-400">(required)</span>
           </label>
           <input
             id="name"
             type="text"
             value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              setErrors((prev) => ({ ...prev, name: undefined }))
+            onChange={(event) => {
+              setName(event.target.value)
+              setErrors((current) => ({ ...current, name: undefined }))
+              setSubmitError(null)
             }}
             placeholder="e.g. Havyn"
-            className={`w-full px-4 py-2.5 rounded-xl border text-sm bg-white text-matcha-900 placeholder:text-matcha-300 outline-none focus:ring-2 focus:ring-matcha-400 transition ${
-              errors.name ? 'border-red-400' : 'border-cream-300'
+            className={`w-full rounded-full bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500 ${
+              errors.name ? 'ring-2 ring-red-400' : ''
             }`}
           />
-          {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+          {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
         </div>
 
-        {/* Drink selection */}
         <div>
-          <p className="block text-sm font-medium text-matcha-700 mb-2">
-            Choose your drink <span className="text-matcha-400 font-normal">(required)</span>
+          <p className="mb-2 block text-sm font-medium text-matcha-700">
+            Choose your drink <span className="font-normal text-matcha-400">(required)</span>
           </p>
           <div className="flex flex-col gap-2">
             {menu.map((item) => (
               <label
                 key={item.id}
-                className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-colors ${
+                className={`flex cursor-pointer items-start gap-4 rounded-3xl p-5 transition-all duration-300 ${
                   selectedItemId === item.id
-                    ? 'border-matcha-400 bg-matcha-50'
-                    : 'border-cream-200 bg-white hover:border-matcha-200'
+                    ? 'bg-cream-50 ring-2 ring-matcha-300 shadow-[0_12px_40px_rgba(27,28,26,0.05)]'
+                    : 'bg-cream-200 hover:bg-cream-300'
                 }`}
               >
                 <input
@@ -159,48 +210,53 @@ export default function OrderPage() {
                   checked={selectedItemId === item.id}
                   onChange={() => {
                     setSelectedItemId(item.id)
-                    setErrors((prev) => ({ ...prev, item: undefined }))
+                    setErrors((current) => ({ ...current, item: undefined }))
+                    setSubmitError(null)
                   }}
                   className="mt-0.5 accent-matcha-500"
                 />
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold text-matcha-800">{item.name}</span>
-                    <span className="text-sm text-matcha-600 font-medium shrink-0">
-                      ${(item.price_cents / 100).toFixed(2)}
-                    </span>
                   </div>
-                  <p className="text-xs text-matcha-500 mt-0.5 leading-relaxed">{item.description}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-matcha-500">{item.description}</p>
                 </div>
               </label>
             ))}
           </div>
-          {errors.item && <p className="text-xs text-red-500 mt-1">{errors.item}</p>}
+          {errors.item && <p className="mt-1 text-xs text-red-500">{errors.item}</p>}
         </div>
 
-        {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-matcha-700 mb-1.5" htmlFor="notes">
-            Notes <span className="text-matcha-400 font-normal">(optional)</span>
+          <label className="mb-1.5 block text-sm font-medium text-matcha-700" htmlFor="notes">
+            Notes <span className="font-normal text-matcha-400">(optional)</span>
           </label>
           <textarea
             id="notes"
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="e.g. Less sweet, oat milk, extra hot"
+            onChange={(event) => {
+              setNotes(event.target.value)
+              setSubmitError(null)
+            }}
+            placeholder="e.g. Less sweet, oat milk, or extra hot"
             rows={3}
-            className="w-full px-4 py-2.5 rounded-xl border border-cream-300 text-sm bg-white text-matcha-900 placeholder:text-matcha-300 outline-none focus:ring-2 focus:ring-matcha-400 transition resize-none"
+            className="w-full resize-none rounded-3xl bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500"
           />
         </div>
 
-        {pageStatus === 'error' && (
-          <Card className="p-3 border-red-200 bg-red-50">
-            <p className="text-sm text-red-600">Something went wrong. Please try again.</p>
+        {submitError && (
+          <Card className="border border-red-200 bg-red-50 p-3">
+            <p className="text-sm text-red-600">{submitError}</p>
           </Card>
         )}
 
-        <Button type="submit" size="lg" disabled={pageStatus === 'submitting'} className="w-full">
-          {pageStatus === 'submitting' ? 'Placing order…' : 'Place Order'}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={pageStatus === 'submitting' || !shopSettings?.isOpen}
+          className="w-full"
+        >
+          {pageStatus === 'submitting' ? 'Placing order...' : 'Place order'}
         </Button>
       </form>
     </PageSection>

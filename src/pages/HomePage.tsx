@@ -1,112 +1,111 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../components/Button'
 import Card from '../components/Card'
 import PageSection from '../components/PageSection'
-import { getMenu, getShopIsOpen } from '../lib/api'
-import type { MenuItemRow } from '../lib/types'
+import { getMenu, getShopSettings } from '../lib/api'
+import type { MenuItemRow, ShopSettings } from '../lib/types'
 
 export default function HomePage() {
   const [menu, setMenu] = useState<MenuItemRow[]>([])
-  const [shopIsOpen, setShopIsOpen] = useState<boolean | null>(null)
+  const [shopSettings, setShopSettings] = useState<ShopSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
-        const [items, isOpen] = await Promise.all([getMenu(), getShopIsOpen()])
+        const [items, settings] = await Promise.all([getMenu(), getShopSettings()])
         setMenu(items)
-        setShopIsOpen(isOpen)
+        setShopSettings(settings)
       } catch {
-        setError('Could not load menu. Please try again.')
+        setError('Could not load the menu right now. Please try again.')
       } finally {
         setLoading(false)
       }
     }
-    load()
+
+    void load()
   }, [])
 
   return (
     <>
-      {/* Hero */}
-      <PageSection as="section" className="pt-14 pb-10 text-center">
-        {/* Shop status badge */}
-        {shopIsOpen !== null && (
+      <PageSection as="section" className="pb-10 pt-14 text-center">
+        {shopSettings && (
           <div
-            className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full mb-6 ${
-              shopIsOpen
+            className={`mb-8 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              shopSettings.isOpen
                 ? 'bg-matcha-100 text-matcha-700'
-                : 'bg-cream-100 text-cream-500'
+                : 'bg-cream-200 text-matcha-700'
             }`}
           >
             <span
-              className={`w-2 h-2 rounded-full ${
-                shopIsOpen ? 'bg-matcha-500 animate-pulse' : 'bg-cream-400'
+              className={`h-2 w-2 rounded-full ${
+                shopSettings.isOpen ? 'bg-matcha-500 animate-pulse' : 'bg-cream-400'
               }`}
             />
-            {shopIsOpen ? 'Open · Taking orders now' : 'Closed — check back soon'}
+            {shopSettings.isOpen ? 'Open' : 'Closed'} - {shopSettings.statusMessage}
           </div>
         )}
 
-        <h1 className="text-4xl sm:text-5xl font-bold text-matcha-800 leading-tight mb-4">
-          Matcha, made<br />with intention.
+        <h1 className="mb-4 text-4xl font-bold leading-tight text-matcha-800 sm:text-5xl">
+          Matcha, made
+          <br />
+          with intention.
         </h1>
-        <p className="text-matcha-500 text-base sm:text-lg max-w-sm mx-auto mb-8">
+        <p className="mx-auto mb-8 max-w-sm text-base text-matcha-500 sm:text-lg">
           Small-batch ceremonial-grade matcha drinks, crafted fresh for every order.
         </p>
 
-        <Link to="/order">
-          <Button size="lg" disabled={shopIsOpen === false}>
-            Order Now
-          </Button>
-        </Link>
+        {shopSettings?.isOpen ? (
+          <Link to="/order">
+            <Button size="lg">Order now</Button>
+          </Link>
+        ) : (
+          <div className="mx-auto max-w-sm rounded-[1.75rem] bg-cream-50/80 px-5 py-4 text-sm text-matcha-600 shadow-sm">
+            Orders are paused right now. {shopSettings?.statusMessage}
+          </div>
+        )}
       </PageSection>
 
-      {/* Menu */}
       <PageSection>
-        <h2 className="text-xl font-semibold text-matcha-700 mb-4">Our Drinks</h2>
+        <h2 className="mb-4 text-xl font-semibold text-matcha-700">Our Drinks</h2>
 
-        {/* Loading skeleton */}
         {loading && (
           <div className="flex flex-col gap-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl border border-cream-200 shadow-sm p-5 animate-pulse"
-              >
-                <div className="h-4 bg-cream-200 rounded w-1/2 mb-2" />
-                <div className="h-3 bg-cream-100 rounded w-full mb-1" />
-                <div className="h-3 bg-cream-100 rounded w-3/4" />
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="animate-pulse rounded-3xl bg-cream-50 p-6">
+                <div className="mb-3 h-5 w-1/2 rounded-full bg-cream-200" />
+                <div className="mb-2 h-4 w-full rounded-full bg-cream-200" />
+                <div className="h-4 w-3/4 rounded-full bg-cream-200" />
               </div>
             ))}
           </div>
         )}
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && (
+          <Card className="border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </Card>
+        )}
 
         {!loading && !error && (
           <div className="flex flex-col gap-4">
             {menu.map((item) => (
               <Card key={item.id} className="p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-matcha-800 mb-1">{item.name}</h3>
-                    <p className="text-sm text-matcha-500 leading-relaxed">{item.description}</p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {item.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs bg-matcha-50 text-matcha-600 border border-matcha-200 rounded-full px-2 py-0.5"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                <div className="min-w-0">
+                  <h3 className="mb-1 font-semibold text-matcha-800">{item.name}</h3>
+                  <p className="text-sm leading-relaxed text-matcha-500">{item.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-matcha-50 px-3 py-1 text-xs font-medium text-matcha-600"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                  <span className="text-matcha-600 font-semibold whitespace-nowrap text-sm pt-0.5">
-                    ${(item.price_cents / 100).toFixed(2)}
-                  </span>
                 </div>
               </Card>
             ))}
@@ -114,9 +113,15 @@ export default function HomePage() {
         )}
 
         <div className="mt-8 text-center">
-          <Link to="/order">
-            <Button variant="secondary">View Full Menu & Order</Button>
-          </Link>
+          {shopSettings?.isOpen ? (
+            <Link to="/order">
+              <Button variant="secondary">View full menu and order</Button>
+            </Link>
+          ) : (
+            <Button variant="secondary" disabled>
+              Ordering currently closed
+            </Button>
+          )}
         </div>
       </PageSection>
     </>

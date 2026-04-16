@@ -6,29 +6,32 @@ export default {
     extend: {
       colors: {
         matcha: {
-          50:  '#f2f7f4',
-          100: '#e0ece4',
-          200: '#c1d9c9',
-          300: '#97bfa6',
-          400: '#679f7e',
-          500: '#4a7c59', // primary — muted earthy matcha green
-          600: '#3b6448',
+          50:  '#f5f9f2', // surface-container-low substitute
+          100: '#d9e4c5', // secondary-container
+          200: '#c0cbad',
+          300: '#b6cf8e', // primary-fixed-dim
+          400: '#a7c080', // primary-container
+          500: '#50652f', // primary
+          600: '#3a4e1b', // on-primary-container
           700: '#30503a',
           800: '#294130',
-          900: '#233629',
-          950: '#111e16',
+          900: '#1b1c1a', // on-surface
+          950: '#121f00',
         },
         cream: {
-          50:  '#faf6f0', // page background
-          100: '#f4ede0',
-          200: '#e8d9c0',
-          300: '#d8c09a',
-          400: '#c5a070',
-          500: '#b08050',
+          50:  '#ffffff', // surface-container-lowest
+          100: '#fbf9f5', // surface / background
+          200: '#f5f3ef', // surface-container-low
+          300: '#efeeea', // surface-container
+          400: '#e4e2de', // surface-container-highest
+          500: '#dbdad6', // surface-dim
+          600: '#c5c8b9', // outline-variant
+          700: '#75796c', // outline
         },
       },
       fontFamily: {
         sans: [
+          'Outfit',
           'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
@@ -36,6 +39,20 @@ export default {
           'Roboto',
           'sans-serif',
         ],
+        admin: [
+          'Manrope',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'Roboto',
+          'sans-serif',
+        ],
+      },
+      borderRadius: {
+        '2xl': '1.5rem',
+        '3xl': '2rem',
+        '4xl': '3rem',
       },
     },
   },

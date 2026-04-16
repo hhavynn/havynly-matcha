@@ -1,7 +1,26 @@
 import { supabase } from './supabase'
-import type { MenuItemRow, OrderRow, OrderWithItem } from './types'
+import type { AppSettingRow, MenuItemRow, OrderRow, ShopSettings } from './types'
 
-// ── Menu ──────────────────────────────────────────────────────
+const DEFAULT_OPEN_MESSAGE = 'Taking orders now.'
+const DEFAULT_CLOSED_MESSAGE = 'Closed for now. Check back soon.'
+
+export class ShopClosedError extends Error {
+  constructor(message = DEFAULT_CLOSED_MESSAGE) {
+    super(message)
+    this.name = 'ShopClosedError'
+  }
+}
+
+function parseShopSettings(settings: AppSettingRow[]): ShopSettings {
+  const byKey = new Map(settings.map((setting) => [setting.key, setting.value]))
+  const openValue = byKey.get('shop_open') ?? byKey.get('shop_is_open') ?? 'true'
+  const isOpen = openValue === 'true'
+  const statusMessage =
+    byKey.get('shop_status_message')?.trim() ||
+    (isOpen ? DEFAULT_OPEN_MESSAGE : DEFAULT_CLOSED_MESSAGE)
+
+  return { isOpen, statusMessage }
+}
 
 export async function getMenu(): Promise<MenuItemRow[]> {
   const { data, error } = await supabase
@@ -9,31 +28,27 @@ export async function getMenu(): Promise<MenuItemRow[]> {
     .select('*')
     .eq('is_available', true)
     .order('sort_order')
+
   if (error) throw error
+
   return data
 }
 
-// ── Shop status ───────────────────────────────────────────────
-
-export async function getShopIsOpen(): Promise<boolean> {
+export async function getShopSettings(): Promise<ShopSettings> {
   const { data, error } = await supabase
     .from('app_settings')
-    .select('value')
-    .eq('key', 'shop_is_open')
-    .single()
+    .select('key, value, updated_at')
+    .in('key', ['shop_open', 'shop_is_open', 'shop_status_message'])
+
   if (error) throw error
-  return data.value === 'true'
+
+  return parseShopSettings((data ?? []) as AppSettingRow[])
 }
 
-export async function setShopIsOpen(isOpen: boolean): Promise<void> {
-  const { error } = await supabase
-    .from('app_settings')
-    .update({ value: String(isOpen), updated_at: new Date().toISOString() })
-    .eq('key', 'shop_is_open')
-  if (error) throw error
+export async function getShopIsOpen(): Promise<boolean> {
+  const settings = await getShopSettings()
+  return settings.isOpen
 }
-
-// ── Orders ────────────────────────────────────────────────────
 
 export interface NewOrder {
   customer_name: string
@@ -42,33 +57,18 @@ export interface NewOrder {
 }
 
 export async function submitOrder(order: NewOrder): Promise<OrderRow> {
+  const settings = await getShopSettings()
+  if (!settings.isOpen) {
+    throw new ShopClosedError(settings.statusMessage)
+  }
+
   const { data, error } = await supabase
     .from('orders')
     .insert(order)
     .select()
     .single()
-  if (error) throw error
-  return data
-}
 
-// Admin: fetch recent orders with drink name joined
-export async function getOrders(): Promise<OrderWithItem[]> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*, menu_items(name)')
-    .order('created_at', { ascending: false })
-    .limit(50)
   if (error) throw error
-  return data
-}
 
-export async function updateOrderStatus(
-  orderId: string,
-  status: OrderRow['status']
-): Promise<void> {
-  const { error } = await supabase
-    .from('orders')
-    .update({ status })
-    .eq('id', orderId)
-  if (error) throw error
+  return data
 }

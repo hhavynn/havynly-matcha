@@ -11,7 +11,26 @@ export interface MenuItemRow {
   created_at: string
 }
 
-export type OrderStatus = 'pending' | 'ready' | 'done' | 'cancelled'
+export interface AdminMenuItemInput {
+  name: string
+  description: string
+  tags: string[]
+  is_available: boolean
+  sort_order: number
+}
+
+export interface AppSettingRow {
+  key: string
+  value: string
+  updated_at: string
+}
+
+export interface ShopSettings {
+  isOpen: boolean
+  statusMessage: string
+}
+
+export type OrderStatus = 'new' | 'in_progress' | 'completed'
 
 export interface OrderRow {
   id: string

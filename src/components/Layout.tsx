@@ -1,21 +1,21 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
 export default function Layout() {
   return (
-    <div className="min-h-screen flex flex-col bg-cream-50 text-matcha-900">
-      <header className="sticky top-0 z-10 bg-cream-50/90 backdrop-blur-sm border-b border-cream-200">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <span className="font-semibold text-matcha-600 tracking-wide text-lg">
-            havynly matcha
+    <div className="flex min-h-screen flex-col bg-cream-100 font-sans text-matcha-900 selection:bg-matcha-200">
+      <header className="sticky top-0 z-20 bg-cream-100/85 backdrop-blur-[20px]">
+        <div className="mx-auto flex h-16 max-w-2xl items-center justify-between px-6">
+          <span className="font-admin text-xl font-semibold tracking-wider text-matcha-600">
+            Havynly Matcha
           </span>
-          <nav className="flex gap-4 text-sm">
+          <nav className="flex gap-6 text-sm">
             <NavLink
               to="/"
               end
               className={({ isActive }) =>
                 isActive
-                  ? 'text-matcha-600 font-medium'
-                  : 'text-matcha-400 hover:text-matcha-600 transition-colors'
+                  ? 'font-medium text-matcha-600'
+                  : 'text-matcha-400 transition-colors hover:text-matcha-600'
               }
             >
               Home
@@ -24,8 +24,8 @@ export default function Layout() {
               to="/order"
               className={({ isActive }) =>
                 isActive
-                  ? 'text-matcha-600 font-medium'
-                  : 'text-matcha-400 hover:text-matcha-600 transition-colors'
+                  ? 'font-medium text-matcha-600'
+                  : 'text-matcha-400 transition-colors hover:text-matcha-600'
               }
             >
               Order
@@ -34,12 +34,12 @@ export default function Layout() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="mx-auto flex-1 w-full max-w-2xl">
         <Outlet />
       </main>
 
-      <footer className="border-t border-cream-200 py-6 text-center text-xs text-matcha-400">
-        © {new Date().getFullYear()} Havynly Matcha. Made with care.
+      <footer className="py-8 text-center text-sm text-matcha-400">
+        &copy; {new Date().getFullYear()} Havynly Matcha. Made with care.
       </footer>
     </div>
   )
