@@ -39,3 +39,23 @@ This function is intended to be called by a Supabase database webhook configured
 The webhook should post the inserted row as `record`.
 
 The function uses `new-order/{order_id}` as the Resend idempotency key so webhook retries do not send duplicate emails for the same order within Resend's idempotency window.
+
+## Database webhook SQL
+
+If the Dashboard webhook is missing or unreliable, run:
+
+```sql
+-- supabase/order-email-webhook.sql
+drop trigger if exists send_order_notification_webhook on public.orders;
+
+create trigger send_order_notification_webhook
+  after insert on public.orders
+  for each row
+  execute function supabase_functions.http_request(
+    'https://vvcfutqaludytjwbduan.supabase.co/functions/v1/send-order-notification',
+    'POST',
+    '{"Content-Type":"application/json"}',
+    '{}',
+    '5000'
+  );
+```
