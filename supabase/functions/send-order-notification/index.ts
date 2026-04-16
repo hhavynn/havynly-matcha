@@ -1,3 +1,5 @@
+import { Resend } from 'npm:resend'
+
 interface OrderRecord {
   id: string
   customer_name: string
@@ -53,26 +55,24 @@ async function sendEmail(
   fromEmail: string,
   toEmail: string,
   subject: string,
-  text: string
+  text: string,
+  orderId: string
 ) {
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      subject,
-      text,
-    }),
+  const resend = new Resend(resendApiKey)
+
+  const { data, error } = await resend.emails.send({
+    from: fromEmail,
+    to: [toEmail],
+    subject,
+    text,
+    idempotencyKey: `new-order/${orderId}`,
   })
 
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Resend request failed: ${response.status} ${errorText}`)
+  if (error) {
+    throw new Error(`Resend request failed: ${error.name}: ${error.message}`)
   }
+
+  return data
 }
 
 Deno.serve(async (request) => {
@@ -143,7 +143,8 @@ Deno.serve(async (request) => {
       fromEmail,
       notificationEmail,
       subject,
-      bodyLines.join('\n')
+      bodyLines.join('\n'),
+      order.id
     )
 
     return new Response(

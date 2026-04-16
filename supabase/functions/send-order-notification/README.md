@@ -1,6 +1,6 @@
 # send-order-notification
 
-Supabase Edge Function that receives an `orders` insert webhook and sends a plain-text email through Resend.
+Supabase Edge Function that receives an `orders` insert webhook and sends a plain-text email through the Resend SDK.
 
 ## Required secrets
 
@@ -9,6 +9,8 @@ Set these in the Supabase project for this function:
 - `RESEND_API_KEY`
 - `ORDER_NOTIFICATION_TO_EMAIL`
 - `ORDER_NOTIFICATION_FROM_EMAIL`
+
+`ORDER_NOTIFICATION_FROM_EMAIL` should use a sender on a verified Resend domain for production.
 
 The function also relies on built-in Supabase secrets:
 
@@ -35,3 +37,5 @@ This function is intended to be called by a Supabase database webhook configured
 - Events: `INSERT`
 
 The webhook should post the inserted row as `record`.
+
+The function uses `new-order/{order_id}` as the Resend idempotency key so webhook retries do not send duplicate emails for the same order within Resend's idempotency window.
