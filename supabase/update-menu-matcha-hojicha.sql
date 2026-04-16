@@ -13,34 +13,30 @@ declare
     'Double Matcha Latte',
     'Double Hojicha Latte',
     'Jasmine Matcha Latte',
-    'Jasmine Hojicha Latte',
     'Earl Grey Matcha Latte',
     'Earl Grey Hojicha Latte',
     'Strawberry Matcha Latte',
     'Strawberry Hojicha Latte',
     'Blueberry Matcha Latte',
     'Blueberry Hojicha Latte',
-    'Coconut Matcha Cold Foam',
-    'Coconut Hojicha Cold Foam'
+    'Coconut Matcha Cold Foam'
   ];
 begin
   for item in
     select *
     from (values
-      ('Classic Matcha Latte', 'A smooth matcha latte with a classic creamy finish.', array['The Classics', 'matcha']::text[], 1),
-      ('Classic Hojicha Latte', 'A roasted green tea latte with warm, toasty notes.', array['The Classics', 'hojicha']::text[], 2),
-      ('Double Matcha Latte', 'A bolder matcha latte with an extra-rich tea flavor.', array['The Classics', 'matcha']::text[], 3),
-      ('Double Hojicha Latte', 'A deeper hojicha latte with extra roasted tea flavor.', array['The Classics', 'hojicha']::text[], 4),
-      ('Jasmine Matcha Latte', 'Matcha latte layered with a soft jasmine tea note.', array['Floral & Tea Infusions', 'matcha']::text[], 5),
-      ('Jasmine Hojicha Latte', 'Roasted hojicha latte balanced with delicate jasmine tea.', array['Floral & Tea Infusions', 'hojicha']::text[], 6),
-      ('Earl Grey Matcha Latte', 'Matcha latte with a fragrant Earl Grey tea infusion.', array['Floral & Tea Infusions', 'matcha']::text[], 7),
-      ('Earl Grey Hojicha Latte', 'Hojicha latte with cozy roasted tea and Earl Grey aroma.', array['Floral & Tea Infusions', 'hojicha']::text[], 8),
-      ('Strawberry Matcha Latte', 'Matcha latte paired with bright strawberry sweetness.', array['Fruit Pairings', 'matcha']::text[], 9),
-      ('Strawberry Hojicha Latte', 'Roasted hojicha latte paired with strawberry sweetness.', array['Fruit Pairings', 'hojicha']::text[], 10),
-      ('Blueberry Matcha Latte', 'Matcha latte paired with juicy blueberry flavor.', array['Fruit Pairings', 'matcha']::text[], 11),
-      ('Blueberry Hojicha Latte', 'Roasted hojicha latte paired with blueberry flavor.', array['Fruit Pairings', 'hojicha']::text[], 12),
-      ('Coconut Matcha Cold Foam', 'Matcha finished with a light coconut cold foam topping.', array['Specialty Toppings', 'matcha']::text[], 13),
-      ('Coconut Hojicha Cold Foam', 'Hojicha finished with a light coconut cold foam topping.', array['Specialty Toppings', 'hojicha']::text[], 14)
+      ('Classic Matcha Latte', 'default ahh matcha.', array['The Classics', 'matcha']::text[], 1),
+      ('Classic Hojicha Latte', 'default ahh hojicha.', array['The Classics', 'hojicha']::text[], 2),
+      ('Double Matcha Latte', 'double ahh matcha.', array['The Classics', 'matcha']::text[], 3),
+      ('Double Hojicha Latte', 'double ahh hojicha.', array['The Classics', 'hojicha']::text[], 4),
+      ('Jasmine Matcha Latte', 'molly tea dupe ahh matcha', array['Floral & Tea Infusions', 'matcha']::text[], 5),
+      ('Earl Grey Matcha Latte', 'still perfecting this one icl...', array['Floral & Tea Infusions', 'matcha']::text[], 7),
+      ('Earl Grey Hojicha Latte', 'still perfecting this one icl...', array['Floral & Tea Infusions', 'hojicha']::text[], 8),
+      ('Strawberry Matcha Latte', 'big fat ahh strawberries', array['Fruit Pairings', 'matcha']::text[], 9),
+      ('Strawberry Hojicha Latte', 'big fat ahh strawberries', array['Fruit Pairings', 'hojicha']::text[], 10),
+      ('Blueberry Matcha Latte', 'yet to try this one myself icl', array['Fruit Pairings', 'matcha']::text[], 11),
+      ('Blueberry Hojicha Latte', 'yet to try this one myself icl', array['Fruit Pairings', 'hojicha']::text[], 12),
+      ('Coconut Matcha Cold Foam', 'this ones my favoritee', array['Specialty Toppings', 'matcha']::text[], 13)
     ) as menu(name, description, tags, sort_order)
   loop
     if exists (select 1 from public.menu_items where menu_items.name = item.name) then
