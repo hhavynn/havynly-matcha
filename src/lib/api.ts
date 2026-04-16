@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { AppSettingRow, MenuItemRow, OrderRow, ShopSettings } from './types'
+import type { AppSettingRow, MenuItemRow, ShopSettings } from './types'
 
 const DEFAULT_OPEN_MESSAGE = 'Taking orders now.'
 const DEFAULT_CLOSED_MESSAGE = 'Closed for now. Check back soon.'
@@ -56,19 +56,15 @@ export interface NewOrder {
   notes?: string
 }
 
-export async function submitOrder(order: NewOrder): Promise<OrderRow> {
+export async function submitOrder(order: NewOrder): Promise<void> {
   const settings = await getShopSettings()
   if (!settings.isOpen) {
     throw new ShopClosedError(settings.statusMessage)
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('orders')
     .insert(order)
-    .select()
-    .single()
 
   if (error) throw error
-
-  return data
 }
