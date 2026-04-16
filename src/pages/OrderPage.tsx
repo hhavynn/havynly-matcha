@@ -155,9 +155,9 @@ export default function OrderPage() {
   return (
     <PageSection narrow>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-matcha-800">Place an Order</h1>
+        <h1 className="text-2xl font-bold text-matcha-800">order here</h1>
         <p className="mt-1 text-sm text-matcha-500">
-          No account needed. Just your name and drink choice.
+          your name and drink order pls
         </p>
         {shopSettings && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-matcha-100 px-4 py-2 text-sm font-medium text-matcha-700">
@@ -182,9 +182,8 @@ export default function OrderPage() {
               setSubmitError(null)
             }}
             placeholder="e.g. Havyn"
-            className={`w-full rounded-full bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500 ${
-              errors.name ? 'ring-2 ring-red-400' : ''
-            }`}
+            className={`w-full rounded-full bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500 ${errors.name ? 'ring-2 ring-red-400' : ''
+              }`}
           />
           {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
         </div>
@@ -197,11 +196,10 @@ export default function OrderPage() {
             {menu.map((item) => (
               <label
                 key={item.id}
-                className={`flex cursor-pointer items-start gap-4 rounded-3xl p-5 transition-all duration-300 ${
-                  selectedItemId === item.id
-                    ? 'bg-cream-50 ring-2 ring-matcha-300 shadow-[0_12px_40px_rgba(27,28,26,0.05)]'
-                    : 'bg-cream-200 hover:bg-cream-300'
-                }`}
+                className={`flex cursor-pointer items-start gap-4 rounded-3xl p-5 transition-all duration-300 ${selectedItemId === item.id
+                  ? 'bg-cream-50 ring-2 ring-matcha-300 shadow-[0_12px_40px_rgba(27,28,26,0.05)]'
+                  : 'bg-cream-200 hover:bg-cream-300'
+                  }`}
               >
                 <input
                   type="radio"

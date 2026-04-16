@@ -33,28 +33,26 @@ export default function HomePage() {
       <PageSection as="section" className="pb-10 pt-14 text-center">
         {shopSettings && (
           <div
-            className={`mb-8 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              shopSettings.isOpen
-                ? 'bg-matcha-100 text-matcha-700'
-                : 'bg-cream-200 text-matcha-700'
-            }`}
+            className={`mb-8 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${shopSettings.isOpen
+              ? 'bg-matcha-100 text-matcha-700'
+              : 'bg-cream-200 text-matcha-700'
+              }`}
           >
             <span
-              className={`h-2 w-2 rounded-full ${
-                shopSettings.isOpen ? 'bg-matcha-500 animate-pulse' : 'bg-cream-400'
-              }`}
+              className={`h-2 w-2 rounded-full ${shopSettings.isOpen ? 'bg-matcha-500 animate-pulse' : 'bg-cream-400'
+                }`}
             />
             {shopSettings.isOpen ? 'Open' : 'Closed'} - {shopSettings.statusMessage}
           </div>
         )}
 
         <h1 className="mb-4 text-4xl font-bold leading-tight text-matcha-800 sm:text-5xl">
-          Matcha, made
+          Matchaaaaaaaa
           <br />
-          with intention.
+          by havyn
         </h1>
         <p className="mx-auto mb-8 max-w-sm text-base text-matcha-500 sm:text-lg">
-          Small-batch ceremonial-grade matcha drinks, crafted fresh for every order.
+          free bc ebt hit
         </p>
 
         {shopSettings?.isOpen ? (
@@ -69,7 +67,7 @@ export default function HomePage() {
       </PageSection>
 
       <PageSection>
-        <h2 className="mb-4 text-xl font-semibold text-matcha-700">Our Drinks</h2>
+        <h2 className="mb-4 text-xl font-semibold text-matcha-700">my menu rn</h2>
 
         {loading && (
           <div className="flex flex-col gap-4">
