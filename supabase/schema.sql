@@ -87,24 +87,101 @@ insert into app_settings (key, value) values
 insert into menu_items (name, description, price_cents, tags, sort_order) values
   (
     'Classic Matcha Latte',
-    'Ceremonial-grade matcha whisked smooth, topped with steamed oat milk and a delicate foam crown.',
-    595,
-    array['bestseller', 'dairy-free option'],
+    'A smooth matcha latte with a classic creamy finish.',
+    0,
+    array['The Classics', 'matcha'],
     1
   ),
   (
-    'Iced Hojicha Latte',
-    'Roasted green tea with a toasty, caramel depth — poured over ice with your choice of milk.',
-    550,
-    array['iced', 'low-caffeine'],
+    'Classic Hojicha Latte',
+    'A roasted green tea latte with warm, toasty notes.',
+    0,
+    array['The Classics', 'hojicha'],
     2
   ),
   (
-    'Ceremonial Usucha',
-    'Pure matcha prepared in the traditional thin-style — nothing but water and stone-ground leaves.',
-    475,
-    array['traditional', 'vegan'],
+    'Double Matcha Latte',
+    'A bolder matcha latte with an extra-rich tea flavor.',
+    0,
+    array['The Classics', 'matcha'],
     3
+  ),
+  (
+    'Double Hojicha Latte',
+    'A deeper hojicha latte with extra roasted tea flavor.',
+    0,
+    array['The Classics', 'hojicha'],
+    4
+  ),
+  (
+    'Jasmine Matcha Latte',
+    'Matcha latte layered with a soft jasmine tea note.',
+    0,
+    array['Floral & Tea Infusions', 'matcha'],
+    5
+  ),
+  (
+    'Jasmine Hojicha Latte',
+    'Roasted hojicha latte balanced with delicate jasmine tea.',
+    0,
+    array['Floral & Tea Infusions', 'hojicha'],
+    6
+  ),
+  (
+    'Earl Grey Matcha Latte',
+    'Matcha latte with a fragrant Earl Grey tea infusion.',
+    0,
+    array['Floral & Tea Infusions', 'matcha'],
+    7
+  ),
+  (
+    'Earl Grey Hojicha Latte',
+    'Hojicha latte with cozy roasted tea and Earl Grey aroma.',
+    0,
+    array['Floral & Tea Infusions', 'hojicha'],
+    8
+  ),
+  (
+    'Strawberry Matcha Latte',
+    'Matcha latte paired with bright strawberry sweetness.',
+    0,
+    array['Fruit Pairings', 'matcha'],
+    9
+  ),
+  (
+    'Strawberry Hojicha Latte',
+    'Roasted hojicha latte paired with strawberry sweetness.',
+    0,
+    array['Fruit Pairings', 'hojicha'],
+    10
+  ),
+  (
+    'Blueberry Matcha Latte',
+    'Matcha latte paired with juicy blueberry flavor.',
+    0,
+    array['Fruit Pairings', 'matcha'],
+    11
+  ),
+  (
+    'Blueberry Hojicha Latte',
+    'Roasted hojicha latte paired with blueberry flavor.',
+    0,
+    array['Fruit Pairings', 'hojicha'],
+    12
+  ),
+  (
+    'Coconut Matcha Cold Foam',
+    'Matcha finished with a light coconut cold foam topping.',
+    0,
+    array['Specialty Toppings', 'matcha'],
+    13
+  ),
+  (
+    'Coconut Hojicha Cold Foam',
+    'Hojicha finished with a light coconut cold foam topping.',
+    0,
+    array['Specialty Toppings', 'hojicha'],
+    14
   );
 
 
