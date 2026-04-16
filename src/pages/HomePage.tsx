@@ -19,7 +19,7 @@ export default function HomePage() {
         setMenu(items)
         setShopSettings(settings)
       } catch {
-        setError('Could not load the menu right now. Please try again.')
+        setError('The menu is taking a little tea break. Please refresh in a moment.')
       } finally {
         setLoading(false)
       }
@@ -42,32 +42,37 @@ export default function HomePage() {
               className={`h-2 w-2 rounded-full ${shopSettings.isOpen ? 'bg-matcha-500 animate-pulse' : 'bg-cream-400'
                 }`}
             />
-            {shopSettings.isOpen ? 'Open' : 'Closed'} - {shopSettings.statusMessage}
+            {shopSettings.isOpen ? 'Open for orders' : 'Closed for now'} - {shopSettings.statusMessage}
           </div>
         )}
 
         <h1 className="mb-4 text-4xl font-bold leading-tight text-matcha-800 sm:text-5xl">
-          Matchaaaaaaaa
+          Havynly Matcha
           <br />
-          by havyn
+          made for friends
         </h1>
         <p className="mx-auto mb-8 max-w-sm text-base text-matcha-500 sm:text-lg">
-          free bc ebt hit
+          A tiny matcha bar for soft mornings, late study sessions, and sweet little pick-me-ups.
         </p>
 
         {shopSettings?.isOpen ? (
           <Link to="/order">
-            <Button size="lg">Order now</Button>
+            <Button size="lg">Pick your drink</Button>
           </Link>
         ) : (
           <div className="mx-auto max-w-sm rounded-[1.75rem] bg-cream-50/80 px-5 py-4 text-sm text-matcha-600 shadow-sm">
-            Orders are paused right now. {shopSettings?.statusMessage}
+            Ordering is paused for the moment. {shopSettings?.statusMessage}
           </div>
         )}
       </PageSection>
 
       <PageSection>
-        <h2 className="mb-4 text-xl font-semibold text-matcha-700">my menu rn</h2>
+        <div className="mb-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-matcha-400">
+            Today's menu
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-matcha-700">Matcha and hojicha drinks</h2>
+        </div>
 
         {loading && (
           <div className="flex flex-col gap-4">
@@ -89,6 +94,15 @@ export default function HomePage() {
 
         {!loading && !error && (
           <div className="flex flex-col gap-4">
+            {menu.length === 0 && (
+              <Card className="border border-dashed border-matcha-200 bg-cream-50/80 p-6 text-center">
+                <p className="text-sm font-medium text-matcha-700">No drinks are available right now.</p>
+                <p className="mt-1 text-xs leading-5 text-matcha-500">
+                  Check back soon. I am probably restocking matcha or deciding what tastes best.
+                </p>
+              </Card>
+            )}
+
             {menu.map((item) => (
               <Card key={item.id} className="p-5">
                 <div className="min-w-0">
@@ -113,11 +127,11 @@ export default function HomePage() {
         <div className="mt-8 text-center">
           {shopSettings?.isOpen ? (
             <Link to="/order">
-              <Button variant="secondary">View full menu and order</Button>
+              <Button variant="secondary">Choose a drink</Button>
             </Link>
           ) : (
             <Button variant="secondary" disabled>
-              Ordering currently closed
+              Ordering is paused
             </Button>
           )}
         </div>
