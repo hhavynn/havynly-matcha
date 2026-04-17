@@ -47,17 +47,17 @@ export default function HomePage() {
         )}
 
         <h1 className="mb-4 text-4xl font-bold leading-tight text-matcha-800 sm:text-5xl">
-          Havynly Matcha
+          havyns matcha
           <br />
-          made for friends
+          yuummmmm
         </h1>
         <p className="mx-auto mb-8 max-w-sm text-base text-matcha-500 sm:text-lg">
-          A tiny matcha bar for soft mornings, late study sessions, and sweet little pick-me-ups.
+          ebt hit so ts free
         </p>
 
         {shopSettings?.isOpen ? (
           <Link to="/order">
-            <Button size="lg">Pick your drink</Button>
+            <Button size="lg">pick a drink bro fuck</Button>
           </Link>
         ) : (
           <div className="mx-auto max-w-sm rounded-[1.75rem] bg-cream-50/80 px-5 py-4 text-sm text-matcha-600 shadow-sm">

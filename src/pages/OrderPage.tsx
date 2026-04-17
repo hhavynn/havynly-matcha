@@ -16,10 +16,10 @@ const CATEGORY_ORDER = [
 ]
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  'The Classics': 'Simple, cozy, and always a safe pick.',
-  'Floral & Tea Infusions': 'Soft tea notes for something a little more delicate.',
-  'Fruit Pairings': 'Bright fruit with matcha or roasted hojicha.',
-  'Specialty Toppings': 'A little extra cloud on top.',
+  'The Classics': 'boring pick.',
+  'Floral & Tea Infusions': 'molly tea dupeee',
+  'Fruit Pairings': 'fruity zesty',
+  'Specialty Toppings': 'this one my favorite',
   Other: 'Small-batch drinks on the current menu.',
 }
 
@@ -49,9 +49,8 @@ function StateIcon({ variant }: { variant: 'closed' | 'success' }) {
 
   return (
     <div
-      className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
-        isSuccess ? 'bg-matcha-100 text-matcha-700' : 'bg-cream-200 text-matcha-700'
-      }`}
+      className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${isSuccess ? 'bg-matcha-100 text-matcha-700' : 'bg-cream-200 text-matcha-700'
+        }`}
     >
       <svg
         aria-hidden="true"
@@ -249,9 +248,9 @@ export default function OrderPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-matcha-400">
           Place an order
         </p>
-        <h1 className="mt-2 text-3xl font-bold text-matcha-800">What are we sipping?</h1>
+        <h1 className="mt-2 text-3xl font-bold text-matcha-800">wtf do u want bro</h1>
         <p className="mt-2 text-sm leading-6 text-matcha-500">
-          Pick a drink, leave a note if you want, and I will make it when I can.
+          pick a damn drink
         </p>
         {shopSettings && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-matcha-100 px-4 py-2 text-sm font-medium text-matcha-700">
@@ -275,10 +274,9 @@ export default function OrderPage() {
               setErrors((current) => ({ ...current, name: undefined }))
               setSubmitError(null)
             }}
-            placeholder="e.g. Mia"
-            className={`w-full rounded-full bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500 ${
-              errors.name ? 'ring-2 ring-red-400' : ''
-            }`}
+            placeholder="e.g. Havyn"
+            className={`w-full rounded-full bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500 ${errors.name ? 'ring-2 ring-red-400' : ''
+              }`}
           />
           {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
         </div>
@@ -308,11 +306,10 @@ export default function OrderPage() {
                     {items.map((item) => (
                       <label
                         key={item.id}
-                        className={`flex cursor-pointer items-start gap-4 rounded-3xl p-5 transition-all duration-300 ${
-                          selectedItemId === item.id
-                            ? 'bg-cream-50 ring-2 ring-matcha-300 shadow-[0_12px_40px_rgba(27,28,26,0.05)]'
-                            : 'bg-cream-200 hover:bg-cream-300'
-                        }`}
+                        className={`flex cursor-pointer items-start gap-4 rounded-3xl p-5 transition-all duration-300 ${selectedItemId === item.id
+                          ? 'bg-cream-50 ring-2 ring-matcha-300 shadow-[0_12px_40px_rgba(27,28,26,0.05)]'
+                          : 'bg-cream-200 hover:bg-cream-300'
+                          }`}
                       >
                         <input
                           type="radio"
@@ -356,7 +353,7 @@ export default function OrderPage() {
               setNotes(event.target.value)
               setSubmitError(null)
             }}
-            placeholder="Anything I should know? Less sweet, extra ice, surprise me..."
+            placeholder="less sweet? (ur fat u need it) more milk? (damn fat ass) extra foam? (damn fat ass) surprise me..."
             rows={3}
             className="w-full resize-none rounded-3xl bg-cream-200 px-5 py-4 text-base text-matcha-900 outline-none transition-shadow placeholder:text-matcha-400 focus:ring-2 focus:ring-matcha-500"
           />
